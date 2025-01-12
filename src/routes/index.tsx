@@ -33,8 +33,10 @@ export default component$(() => {
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(
     ({ cleanup }) => {
-      getAudioPermission();
       cleanup(() => {
+        if (audioStream.value) {
+          audioStream.value.getTracks().forEach((tr) => tr.stop());
+        }
         if (audioContext.value) {
           audioContext.value.close();
         }
@@ -79,6 +81,7 @@ export default component$(() => {
       <button
         onClick$={() => {
           userInteracted.value = true;
+          getAudioPermission();
         }}
       >
         Start Recording
@@ -86,6 +89,9 @@ export default component$(() => {
       <button
         onClick$={() => {
           userInteracted.value = false;
+          if (audioStream.value) {
+            audioStream.value.getTracks().forEach((tr) => tr.stop());
+          }
           if (audioContext.value) {
             audioContext.value.close();
             dataArrayRef.value = new Uint8Array();
